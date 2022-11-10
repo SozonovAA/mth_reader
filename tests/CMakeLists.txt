@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.14)
-project(myprg-tests)
+project(mth_rd-tests)
 
 #----------------------------------------------------------------------------------------------------------------------
 # general settings and options
@@ -28,14 +28,6 @@ set(BUILD_SHARED_LIBS OFF)
 FetchContent_MakeAvailable(googletest)
 
 #----------------------------------------------------------------------------------------------------------------------
-# tests dependencies
-#----------------------------------------------------------------------------------------------------------------------
-
-#if(is_top_level)
-#    find_package(mylib REQUIRED)
-#endif()
-
-#----------------------------------------------------------------------------------------------------------------------
 # tests sources
 #----------------------------------------------------------------------------------------------------------------------
 
@@ -47,17 +39,12 @@ source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}" FILES ${sources})
 # tests target
 #----------------------------------------------------------------------------------------------------------------------
 
-add_executable(myprg-tests)
-target_sources(myprg-tests PRIVATE ${sources})
+add_executable(mth_rd-tests)
+target_sources(mth_rd-tests PRIVATE ${sources})
 
-target_link_libraries(myprg-tests
+target_link_libraries(mth_rd-tests
         PRIVATE
         gtest_main)
-
-#add_test(
-#      NAME myprg-tests
-#      COMMAND $<TARGET_FILE:myprg-tests>
-#      )
 
 include(GoogleTest)
 gtest_discover_tests(myprg-tests)
