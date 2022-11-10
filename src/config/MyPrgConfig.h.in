@@ -1,0 +1,4 @@
+#define PRG_VERSION_MAJOR @myprg_VERSION_MAJOR@
+#define PRG_VERSION_MINOR @myprg_VERSION_MINOR@
+
+#cmakedefine USE_SOME_LIB
