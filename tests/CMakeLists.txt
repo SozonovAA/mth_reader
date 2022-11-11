@@ -5,11 +5,6 @@ project(mth_rd-tests)
 # general settings and options
 #----------------------------------------------------------------------------------------------------------------------
 
-#string(COMPARE EQUAL "${CMAKE_SOURCE_DIR}" "${CMAKE_CURRENT_SOURCE_DIR}" is_top_level)
-
-#if(is_top_level)
-#    enable_testing()
-#endif()
 
 #----------------------------------------------------------------------------------------------------------------------
 # testing framework
@@ -42,9 +37,9 @@ source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}" FILES ${sources})
 add_executable(mth_rd-tests)
 target_sources(mth_rd-tests PRIVATE ${sources})
 
-target_link_libraries(mth_rd-tests
+target_link_libraries(${PROJECT_NAME}
         PRIVATE
         gtest_main)
 
 include(GoogleTest)
-gtest_discover_tests(myprg-tests)
+gtest_discover_tests(${PROJECT_NAME})

@@ -1,11 +1,18 @@
 #include <src/config/MyPrgConfig.h>
 #include <iostream>
-#include "include/inc.h"
-#include <boost/array.hpp>
+#include <string>
+#include <vector>
+#include <regex>
+
+#include "include/search.h"
 #ifdef USE_SOME_LIB
-//    #include <>
+
 #endif
 
+
+
 int main(){
- boost::array<int, 5>a;
+    utils::result_printing(utils::key_searching("jvfkja blvnlvnanblksal", "??a?"));
+
+
 }
