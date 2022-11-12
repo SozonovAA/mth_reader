@@ -18,13 +18,42 @@ using SearchRet_t = std::pair<KeyNumber_t, KeysFinded_t>;
 
 } // namespace types
 
-
+/**
+ * @brief key_preparing функция "подготовки" ключа к использованию в регулярном выражении
+ * @param key исходный ключ
+ * @param any_from символ в ключе, который обозначает любой символ
+ * @param any_to символ в регулярном выражении, который обозначает любой символ
+ * @return подготовленный ключ в круглых скобках, для использования в регулярных выражениях
+ */
 static const std::string key_preparing(const std::string_view & key,
-                                     const std::string & from = "?",
-                                     const std::string & to = "."){
+                                     const std::string & any_from = "?",
+                                     const std::string & any_to = "."){
 
-    const auto r = std::regex(std::string{"(["+from+"])"});
-    return std::string{ '(' + regex_replace(key.data(), r, to) + ')' };
+    const auto r = std::regex(std::string{"(["+any_from+"])"});
+    return std::string{ '(' + regex_replace(key.data(), r, any_to) + ')' };
+}
+
+/**
+ * @brief string_spliting функция разделения строки на вектор строк по определенному разделителю
+ * @param str исходная строка
+ * @param pattern разделители (может быть набор разделителей)
+ * @return вектор строк, полученных после сплита
+ */
+std::vector<std::string> string_spliting(const std::string& str, std::string_view pattern) {
+    std::vector<std::string> ret_v;
+    if(pattern.empty()) {
+        ret_v.push_back(str);
+        return ret_v;
+    }
+
+    std::vector<char> input(str.begin() ,str.end());
+    std::vector<char> delimiters(pattern.begin(), pattern.end());
+    char *token = std::strtok(input.data(), delimiters.data());
+    while (token) {
+        ret_v.emplace_back(std::string{token});
+        token = std::strtok(nullptr, delimiters.data());
+    }
+    return ret_v;
 }
 
 

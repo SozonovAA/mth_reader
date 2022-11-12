@@ -1,8 +1,4 @@
 #include <src/config/MyPrgConfig.h>
-#include <iostream>
-#include <string>
-#include <vector>
-#include <regex>
 
 #include "include/search.h"
 #ifdef USE_SOME_LIB
