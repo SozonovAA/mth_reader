@@ -7,16 +7,36 @@
 
 namespace utils {
 namespace types {
-using KeyNumber_t = std::uint32_t;
+using KeysNumber_t = std::uint32_t;
 
 using KeysPos_t = std::uint32_t;
 using KeyInStr_t = std::string;
 
 using KeyFinded_t = std::pair<KeysPos_t, KeyInStr_t>;
 using KeysFinded_t = std::vector<KeyFinded_t>;
-using SearchRet_t = std::pair<KeyNumber_t, KeysFinded_t>;
+using SearchRet_t = std::pair<KeysNumber_t, KeysFinded_t>;
 
 } // namespace types
+
+/**
+ * @brief string_spliting функция разделения строки на вектор строк по определенному разделителю
+ * @param str исходная строка
+ * @param delim разделитель
+ * @param out вектор строк, полученных после сплита
+ */
+static void string_spliting(std::string const &str, const char delim,
+            std::vector<std::string> &out)
+{
+    size_t start;
+    size_t end = 0;
+
+    while ((start = str.find_first_not_of(delim, end)) != std::string::npos)
+    {
+        end = str.find(delim, start);
+        out.push_back(str.substr(start, end - start));
+    }
+}
+
 
 /**
  * @brief key_preparing функция "подготовки" ключа к использованию в регулярном выражении
@@ -31,29 +51,6 @@ static const std::string key_preparing(const std::string_view & key,
 
     const auto r = std::regex(std::string{"(["+any_from+"])"});
     return std::string{ '(' + regex_replace(key.data(), r, any_to) + ')' };
-}
-
-/**
- * @brief string_spliting функция разделения строки на вектор строк по определенному разделителю
- * @param str исходная строка
- * @param pattern разделители (может быть набор разделителей)
- * @return вектор строк, полученных после сплита
- */
-std::vector<std::string> string_spliting(const std::string& str, std::string_view pattern) {
-    std::vector<std::string> ret_v;
-    if(pattern.empty()) {
-        ret_v.push_back(str);
-        return ret_v;
-    }
-
-    std::vector<char> input(str.begin() ,str.end());
-    std::vector<char> delimiters(pattern.begin(), pattern.end());
-    char *token = std::strtok(input.data(), delimiters.data());
-    while (token) {
-        ret_v.emplace_back(std::string{token});
-        token = std::strtok(nullptr, delimiters.data());
-    }
-    return ret_v;
 }
 
 

@@ -4,27 +4,20 @@
 #include <fstream>
 #include <iostream>
 #include <string>
+#include <vector>
 
-static std::ifstream read_file( const std::filesystem::path& filepath, std::ostream & info = std::cout ) {
+std::string read_file_chars( const std::filesystem::path& path, std::uint32_t numb)
+{
+    // Open the stream to 'lock' the file.
+    std::ifstream f(path, std::ios::in | std::ios::binary);
 
-    if( not std::filesystem::exists( filepath ) )
-        throw std::invalid_argument{ "File: " + filepath.string() + " does not exist." };
+    // Create a buffer.
+    std::vector<char> result(numb);
+    // Read the whole file into the buffer.
+    f.readsome(&*result.begin(), numb);
+    result.resize(f.gcount());
 
-    if( not std::filesystem::is_regular_file( filepath ) )
-        throw std::invalid_argument{"File: " + filepath.string() + " is not a file."};
-
-    info << "File: " + filepath.string() + " is valid." << std::endl;
-
-    return { filepath };
+    return std::string(result.begin(), result.end());
 }
 
-static std::string read_full_stream( std::ifstream _is ) {
-    std::string file_;
-    while( _is ){
-        std::string file_str;
-        std::getline( _is, file_str);
-        file_ += file_str;
-    }
-    return file_;
-}
 #endif // FILEREADER_H

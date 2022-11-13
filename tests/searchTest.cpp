@@ -2,7 +2,7 @@
 
 #include "../src/include/search.h"
 
-TEST(key_preparing_test, add_1_1)
+TEST(key_preparing_test, key_preparing)
 {
 
     EXPECT_EQ("(..)", utils::key_preparing(std::string{"??"}));
@@ -15,29 +15,33 @@ TEST(key_preparing_test, add_1_1)
 
 
 }
-TEST(string_spliting_test, add_1_1)
+TEST(string_spliting_test, string_spliting)
 {
-    std::vector<std::string> test_case {
-        "one",
-        "two",
-        "three",
-        "four",
-    };
-    EXPECT_EQ( test_case, utils::string_spliting("one/two/three/four/", "/"));
-    EXPECT_EQ( std::vector<std::string>{"one/two/three/four/"},
-               utils::string_spliting("one/two/three/four/", "m"));
+    {
+        std::vector<std::string> test_case {
+            "one",
+            "two",
+            "three",
+            "four",
+        };
+        std::vector<std::string> out;
+        utils::string_spliting("one/two/three/four/", '/', out);
+        EXPECT_EQ( test_case, out);
 
-    EXPECT_EQ( std::vector<std::string>{"one/two/three/four/"},
-               utils::string_spliting("one/two/three/four/", "123132"));
+    }
 
-    EXPECT_EQ( std::vector<std::string>{"one/two/three/four/"},
-               utils::string_spliting("one/two/three/four/", "."));
+    {
+        std::vector<std::string> out;
+        utils::string_spliting("one/two/three/four/", 'm', out);
+        EXPECT_EQ( std::vector<std::string>{"one/two/three/four/"},
+                   out );
+    }
+    {
+        std::vector<std::string> out;
+        utils::string_spliting("one/two/three/four/", '.', out);
+        EXPECT_EQ( std::vector<std::string>{"one/two/three/four/"},
+                   out );
+    }
 
-    EXPECT_EQ( std::vector<std::string>{},
-               utils::string_spliting("one/two/three/four/", "one/two/three/four/"));
-
-
-    EXPECT_EQ( std::vector<std::string>{"one/two/three/four/"},
-               utils::string_spliting("one/two/three/four/", ""));
 
 }
