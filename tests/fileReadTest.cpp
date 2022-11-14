@@ -8,7 +8,7 @@ TEST(file_read_test, read_file_chars)
 {
     {
         std::string test_case = {
-R"(I've paid my dues
+            R"(I've paid my dues
 Time after time.
 I've done my sentence
 But committed no crime.
@@ -25,7 +25,7 @@ But I've come through.
     }
     {
         std::string test_case = {
-R"(I've paid my dues
+            R"(I've paid my dues
 Time after time.
 )"
         };
