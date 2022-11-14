@@ -56,6 +56,8 @@ source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}" FILES ${main_source})
 list(APPEND     src_sources
          src/include/fileReader.h
          src/include/search.h
+         src/include/mthreader.h
+         src/sources/mthreader.cpp
     )
 #-------------------------------------------------------------------
 # Добавим корректное отбражение файлов в IDE
