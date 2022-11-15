@@ -21,23 +21,30 @@ set(INSTALL_GTEST OFF)
 set(BUILD_SHARED_LIBS OFF)
 
 FetchContent_MakeAvailable(googletest)
+#----------------------------------------------------------------------------------------------------------------------
+# external sources
+#----------------------------------------------------------------------------------------------------------------------
+list(APPEND ext_sources
+    ../../prog/src/sources/mthreader.cpp
+    )
 
+#----------------------------------------------------------------------------------------------------------------------
 #----------------------------------------------------------------------------------------------------------------------
 # tests sources
 #----------------------------------------------------------------------------------------------------------------------
 
-set(sources
+list(APPEND test_sources
     searchTest.cpp
     fileReadTest.cpp
     mthReaderTest.cpp)
-source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}" FILES ${sources})
+source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}" FILES ${test_sources})
 
 #----------------------------------------------------------------------------------------------------------------------
 # tests target
 #----------------------------------------------------------------------------------------------------------------------
 
 add_executable(mth_rd-tests)
-target_sources(mth_rd-tests PRIVATE ${sources})
+target_sources(mth_rd-tests PRIVATE ${test_sources} ${ext_sources})
 
 target_link_libraries(${PROJECT_NAME}
         PRIVATE

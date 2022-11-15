@@ -2,6 +2,7 @@
 #define MTHREADER_H
 #include <future>
 #include <vector>
+#include <mutex>
 
 #include "search.h"
 namespace business {
@@ -32,34 +33,31 @@ struct SearchingResult {
 } // namespace types
 
 //todo: реализовать и протестировать статическую функцию, которая будет читать строку и парсить её
-static types::SearchingResult search(std::string_view str, std::string_view key) {
-    types::SearchingResult ret;
-    std::vector<std::string> after_spliting{utils::string_spliting(str.data(), '\n')};
-    auto strings_number = after_spliting.size();
-
-    for(const auto & str: after_spliting) {
-        types::SearchingResult::all_data_in_row_t adr;
-        adr.reserve(strings_number);
-        auto row_res = utils::key_searching(str, utils::key_preparing(std::string{key}));
-        ret.numb_ += row_res.first;
-
-        for(const auto & t : row_res.second) {
-//            std::cout << t.first << " ";
-//            std::cout << t.second << std::endl;
-            adr.emplace_back(types::SearchingResult::single_data_in_row_t{
-                                 std::make_pair(t.first+1, t.second )
-                             });
-        }
-        adr.shrink_to_fit();
-        ret.result_.emplace_back(std::move(adr));
-    }
-
-    return ret;
-}
+types::SearchingResult search(std::string_view str, std::string_view key);
 
 //todo: реализовать и протестировать статическую функцию,
 //      который будет по вектору из ретерн велью формировать корректный тип для вывода
+static void print(const std::vector<types::SearchingResult> res, std::ostream & info = std::cout) {
+    std::uint64_t row = 0;
+    std::uint64_t numb = 0;
 
+    std::for_each(res.begin(), res.end(), [&](const auto & it){
+        numb+= it.numb_;
+    });
+    info << numb << std::endl;
+
+    for(auto & singl_res : res){
+        for(const auto & it : singl_res.result_){
+            ++row;
+            for(const auto & itt : it){
+                info << row << " " << itt.first << " " << itt.second << std::endl;
+                }
+            }
+        }
+
+}
+
+//todo: возможно он просто запускатор и следитель за количеством потоков
 /**
  * @brief The MthReader class ответственный за создание многопоточных экземпляров функции
  * и последующую генерацию правильного отображения результатов выполнения.
@@ -67,24 +65,53 @@ static types::SearchingResult search(std::string_view str, std::string_view key)
 class MthReader
 {
 public:
-    MthReader();
+    using function_t = std::function<types::SearchingResult(std::string_view str, std::string_view key)>;
 
+    MthReader(std::string key, std::uint16_t max_th_number, std::uint16_t reading_ch_n) :
+        dpAsync_{},
+        key_{key},
+        max_th_number_{max_th_number},
+        reading_ch_n_{reading_ch_n},
+        current_th_numb_{},
+        serching_index_{},
+        all_res_{} {
+    };
+
+
+
+    void bind_finction(function_t f);
 
     //todo: реализовать мейн функцию, которая будет запускать чтение из файла и создавать экземпляры фьюч
+    std::vector<types::SearchingResult> searching_proc(std::ifstream &fs);
 
 private:
     //todo: создать тип данных, который будет хранить экзепляры фьюч
-    std::future<bool> dpAsync_;
+    std::vector<std::future<void>> dpAsync_;
+
+    /**
+     * @brief key_ ключ, который необходимо искать
+     */
+    const std::string key_;
+
+    const std::uint16_t max_th_number_;
+
+    const std::uint16_t reading_ch_n_;
+
+    std::uint16_t current_th_numb_;
+
+    std::uint64_t serching_index_;
 
 
+    std::vector<types::SearchingResult> all_res_;
 
-    std::future<bool> data_pack_proc( std::uint16_t cycles_n = 1 )
-    {
-        return std::async(std::launch::async,[cycles_n,this](){
+    std::mutex m_;
 
-            return true;
-        });
-    }
+    /**
+     * @brief bind_f экземпляр функции, которая будет вызываться в отдельном потоке
+     */
+    function_t bind_f;
+
+    bool add_new_searching_th(std::string str);
 
 
 };
