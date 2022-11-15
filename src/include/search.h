@@ -7,9 +7,9 @@
 
 namespace utils {
 namespace types {
-using KeysNumber_t = std::uint32_t;
+using KeysNumber_t = std::uint64_t;
 
-using KeysPos_t = std::uint32_t;
+using KeysPos_t = std::uint64_t;
 using KeyInStr_t = std::string;
 
 using KeyFinded_t = std::pair<KeysPos_t, KeyInStr_t>;

@@ -21,7 +21,7 @@ struct SearchingResult {
     /**
      * @brief numb_ количество ключей в данном фрагменте текста
      */
-    numbers_of_finded_res_t numb_;
+    numbers_of_finded_res_t numb_ = 0;
 
     /**
      * @brief result_ все данные, которые были надйены в тексте
@@ -34,8 +34,25 @@ struct SearchingResult {
 //todo: реализовать и протестировать статическую функцию, которая будет читать строку и парсить её
 static types::SearchingResult search(std::string_view str, std::string_view key) {
     types::SearchingResult ret;
-    std::vector<std::string> after_spliting;
+    std::vector<std::string> after_spliting{utils::string_spliting(str.data(), '\n')};
+    auto strings_number = after_spliting.size();
 
+    for(const auto & str: after_spliting) {
+        types::SearchingResult::all_data_in_row_t adr;
+        adr.reserve(strings_number);
+        auto row_res = utils::key_searching(str, utils::key_preparing(std::string{key}));
+        ret.numb_ += row_res.first;
+
+        for(const auto & t : row_res.second) {
+//            std::cout << t.first << " ";
+//            std::cout << t.second << std::endl;
+            adr.emplace_back(types::SearchingResult::single_data_in_row_t{
+                                 std::make_pair(t.first+1, t.second )
+                             });
+        }
+        adr.shrink_to_fit();
+        ret.result_.emplace_back(std::move(adr));
+    }
 
     return ret;
 }
