@@ -12,8 +12,9 @@ static std::ifstream open_file( const std::filesystem::path& filepath, std::ostr
 
       if( not std::filesystem::is_regular_file( filepath ) )
           throw std::invalid_argument{"File: " + filepath.string() + " is not a file."};
-
+#ifdef DEBUG_INFO
       info << "File: " + filepath.string() + " is valid." << std::endl;
+#endif
 
       return std::ifstream(filepath, std::ios::in | std::ios::binary );
 }

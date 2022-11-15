@@ -24,9 +24,10 @@ using SearchRet_t = std::pair<KeysNumber_t, KeysFinded_t>;
  * @param delim разделитель
  * @param out вектор строк, полученных после сплита
  */
-static void string_spliting(std::string const &str, const char delim,
-            std::vector<std::string> &out)
+static std::vector<std::string> string_spliting(const std::string & str, const char delim)
 {
+    std::vector<std::string> out;
+    out.reserve(str.size());
     size_t start;
     size_t end = 0;
 
@@ -35,6 +36,8 @@ static void string_spliting(std::string const &str, const char delim,
         end = str.find(delim, start);
         out.push_back(str.substr(start, end - start));
     }
+    out.shrink_to_fit();
+    return out;
 }
 
 

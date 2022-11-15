@@ -24,21 +24,18 @@ TEST(string_spliting_test, string_spliting)
             "three",
             "four",
         };
-        std::vector<std::string> out;
-        utils::string_spliting("one/two/three/four/", '/', out);
+        std::vector<std::string> out {utils::string_spliting("one/two/three/four/", '/')};
         EXPECT_EQ( test_case, out);
 
     }
 
     {
-        std::vector<std::string> out;
-        utils::string_spliting("one/two/three/four/", 'm', out);
+        std::vector<std::string> out {utils::string_spliting("one/two/three/four/", 'm')};
         EXPECT_EQ( std::vector<std::string>{"one/two/three/four/"},
                    out );
     }
     {
-        std::vector<std::string> out;
-        utils::string_spliting("one/two/three/four/", '.', out);
+        std::vector<std::string> out {utils::string_spliting("one/two/three/four/", '.')};
         EXPECT_EQ( std::vector<std::string>{"one/two/three/four/"},
                    out );
     }

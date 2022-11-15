@@ -11,17 +11,9 @@ set(CMAKE_CXX_STANDARD 17)
 # Определение опций сборки
 #-------------------------------------------------------------------
 option(MTH_RD_BUILD_TESTS "Build mylib tests" ON)
-option(USE_BOOST_LIB "Include and link boost lib to your project" ON)
-option(USE_SOME_LIB "A simple lib for smth" OFF)
+option(USE_BOOST_LIB "Include and link boost to your project" ON)
+option(USE_DEBUG_INFO "If you need debug info" ON)
 #-------------------------------------------------------------------
-
-if(USE_SOME_LIB)
-    message("USE_SOME_LIB")
-
-    list(APPEND EXTRA_INCLUDE_DIRS "some_lib")
-    list(APPEND EXTRA_LIB_DIRS "some_lib")
-    list(APPEND EXTRA_LINKS pqxx)
-endif()
 
 if(USE_BOOST_LIB)
     set(Boost_USE_STATIC_LIBS ON)
@@ -92,7 +84,13 @@ set(CPACK_PACKAGING_VERSION_MAJOR "${PROJECT_VERSION_MAJOR}")
 set(CPACK_PACKAGING_VERSION_MINOR "${PROJECT_VERSION_MINOR}")
 include(CPack)
 #-------------------------------------------------------------------
-
+#-------------------------------------------------------------------
+# Подключение опциональных модулей
+#-------------------------------------------------------------------
+if(USE_DEBUG_INFO)
+    add_compile_definitions(DEBUG_INFO)
+endif()
+#-------------------------------------------------------------------
 
 #-------------------------------------------------------------------
 # Подключение опциональных модулей
