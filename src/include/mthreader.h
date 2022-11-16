@@ -28,31 +28,43 @@ struct SearchingResult {
      * @brief result_ все данные, которые были надйены в тексте
      */
     all_finded_data_r result_;
+
+    bool is_last_char_n = true;
+
+    std::uint64_t last_row_size = 0;
 };
 
 } // namespace types
 
 //todo: реализовать и протестировать статическую функцию, которая будет читать строку и парсить её
-types::SearchingResult search(std::string_view str, std::string_view key);
+types::SearchingResult search(std::string str, std::string_view key);
 
 //todo: реализовать и протестировать статическую функцию,
 //      который будет по вектору из ретерн велью формировать корректный тип для вывода
 static void print(const std::vector<types::SearchingResult> res, std::ostream & info = std::cout) {
-    std::uint64_t row = 0;
+    std::int64_t row = 0;
     std::uint64_t numb = 0;
 
     std::for_each(res.begin(), res.end(), [&](const auto & it){
         numb+= it.numb_;
     });
     info << numb << std::endl;
+    std::uint16_t add_to_first_row = 0;
 
     for(auto & singl_res : res){
         for(const auto & it : singl_res.result_){
             ++row;
             for(const auto & itt : it){
-                info << row << " " << itt.first << " " << itt.second << std::endl;
+                info << row << " " << add_to_first_row + itt.first << " " << itt.second << std::endl;
                 }
+            add_to_first_row = 0;
             }
+
+        if(!singl_res.is_last_char_n) {
+            --row;
+        }
+        add_to_first_row = singl_res.last_row_size;
+
         }
 
 }
@@ -65,9 +77,9 @@ static void print(const std::vector<types::SearchingResult> res, std::ostream & 
 class MthReader
 {
 public:
-    using function_t = std::function<types::SearchingResult(std::string_view str, std::string_view key)>;
+    using function_t = std::function<types::SearchingResult(std::string str, std::string_view key)>;
 
-    MthReader(std::string key, std::uint16_t max_th_number, std::uint16_t reading_ch_n) :
+    MthReader(std::string key, std::uint16_t max_th_number, std::uint64_t reading_ch_n) :
         dpAsync_{},
         key_{key},
         max_th_number_{max_th_number},
@@ -95,7 +107,7 @@ private:
 
     const std::uint16_t max_th_number_;
 
-    const std::uint16_t reading_ch_n_;
+    const std::uint64_t reading_ch_n_;
 
     std::uint16_t current_th_numb_;
 

@@ -27,7 +27,11 @@ using SearchRet_t = std::pair<KeysNumber_t, KeysFinded_t>;
 static std::vector<std::string> string_spliting(const std::string & str, const char delim)
 {
     std::vector<std::string> out;
-    out.reserve(str.size());
+
+//    out.reserve(str.size());
+    if(*str.begin() == '\n') {
+        out.push_back({});
+    }
     size_t start;
     size_t end = 0;
 
@@ -36,7 +40,7 @@ static std::vector<std::string> string_spliting(const std::string & str, const c
         end = str.find(delim, start);
         out.push_back(str.substr(start, end - start));
     }
-    out.shrink_to_fit();
+//    out.shrink_to_fit();
     return out;
 }
 

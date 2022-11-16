@@ -41,10 +41,11 @@ TEST(mth_test, simple_split_searching_test)
         R"(I've paid my dues
 Time after time.
 I've done my sentence
-But committed no crime.)"};
+But committed no )"};
 
     std::string test_case2 = {
-        R"(And bad mistakes ?
+        R"(crime.
+And bad mistakes ?
 I've made a few.
 I've had my share of sand kicked in my face
 But I've come through.
@@ -66,12 +67,13 @@ But I've come through.
     business::print({res1, res2});
 
 }
-
+#include <thread>
+#include <chrono>
 TEST(mth_test, single_th_searching_test)
 {
-    business::MthReader mth("?ad", 1, 30);
+    business::MthReader mth("?8?>", 10, 10000);
     mth.bind_finction(business::search);
-    auto fs {open_file("data/first.in")};
+    auto fs {open_file("data/example.in")};
     auto ret = mth.searching_proc(fs);
     business::print(ret);
 }

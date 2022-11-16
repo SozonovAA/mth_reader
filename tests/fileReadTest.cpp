@@ -50,5 +50,8 @@ But I've come through.
         };
         auto str2 = read_file_chars(fs, 1000);
         EXPECT_EQ(test_case2, str2);
+
+        auto str3 = read_file_chars(fs, 1000);
+        EXPECT_EQ(0, str3.size());
     }
 }

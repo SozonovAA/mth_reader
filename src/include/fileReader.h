@@ -27,6 +27,7 @@ static std::string read_file_chars( std::ifstream & f, std::uint32_t numb)
     f.readsome(&*result.begin(), numb);
     result.resize(f.gcount());
 
+
     return std::string(result.begin(), result.end());
 }
 
