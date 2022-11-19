@@ -4,7 +4,21 @@ project(mth_rd-tests)
 #----------------------------------------------------------------------------------------------------------------------
 # general settings and options
 #----------------------------------------------------------------------------------------------------------------------
+set(Boost_USE_STATIC_LIBS ON)
+add_definitions(-DBOOST_PYTHON_STATIC_LIB)
+set(Boost_USE_MULTITHREADED ON)
 
+find_package( Boost 1.74 COMPONENTS program_options thread timer chrono REQUIRED )
+message(STATUS "Boost version: ${Boost_VERSION}")
+if(Boost_FOUND)
+    list(APPEND EXTRA_INCLUDE_DIRS
+        ${Boost_INCLUDE_DIR} )
+
+    list(APPEND EXTRA_LINKS
+        ${Boost_LIBRARIES} )
+else()
+    message(BOOST NOT FOUND)
+endif()
 
 #----------------------------------------------------------------------------------------------------------------------
 # testing framework
@@ -26,6 +40,7 @@ FetchContent_MakeAvailable(googletest)
 #----------------------------------------------------------------------------------------------------------------------
 list(APPEND ext_sources
     ../../prog/src/sources/mthreader.cpp
+    ../../prog/src/sources/search.cpp
     )
 
 #----------------------------------------------------------------------------------------------------------------------
@@ -46,9 +61,15 @@ source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}" FILES ${test_sources})
 add_executable(mth_rd-tests)
 target_sources(mth_rd-tests PRIVATE ${test_sources} ${ext_sources})
 
-target_link_libraries(${PROJECT_NAME}
-        PRIVATE
-        gtest_main)
+target_include_directories(${PROJECT_NAME}
+    PUBLIC ${PROJECT_BINARY_DIR}
+           ${EXTRA_INCLUDE_DIRS})
+target_link_directories(${PROJECT_NAME} PUBLIC
+    ${EXTRA_LIB_DIRS})
+
+target_link_libraries(${PROJECT_NAME} PRIVATE
+    gtest_main
+    ${EXTRA_LINKS})
 
 include(GoogleTest)
 gtest_discover_tests(${PROJECT_NAME})

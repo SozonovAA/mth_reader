@@ -4,6 +4,10 @@
 #include <vector>
 #include <mutex>
 
+#include <boost/asio/io_service.hpp>
+#include <boost/bind.hpp>
+#include <boost/thread/thread.hpp>
+
 #include "search.h"
 namespace business {
 
@@ -49,23 +53,23 @@ static void print(const std::vector<types::SearchingResult> res, std::ostream & 
         numb+= it.numb_;
     });
     info << numb << std::endl;
-    std::uint16_t add_to_first_row = 0;
+//    std::uint16_t add_to_first_row = 0;
 
-    for(auto & singl_res : res){
-        for(const auto & it : singl_res.result_){
-            ++row;
-            for(const auto & itt : it){
-                info << row << " " << add_to_first_row + itt.first << " " << itt.second << std::endl;
-                }
-            add_to_first_row = 0;
-            }
+//    for(auto & singl_res : res){
+//        for(const auto & it : singl_res.result_){
+//            ++row;
+//            for(const auto & itt : it){
+//                info << row << " " << add_to_first_row + itt.first << " " << itt.second << std::endl;
+//                }
+//            add_to_first_row = 0;
+//            }
 
-        if(!singl_res.is_last_char_n) {
-            --row;
-        }
-        add_to_first_row = singl_res.last_row_size;
+//        if(!singl_res.is_last_char_n) {
+//            --row;
+//        }
+//        add_to_first_row = singl_res.last_row_size;
 
-        }
+//        }
 
 }
 
@@ -86,7 +90,18 @@ public:
         reading_ch_n_{reading_ch_n},
         current_th_numb_{},
         serching_index_{},
-        all_res_{} {
+        all_res_{},
+        m_{},
+        ioService_{},
+        threadpool_{},
+        work_(ioService_)
+    {
+        for(auto i = 0; i < max_th_number ; ++i){
+            threadpool_.create_thread(
+                boost::bind(&boost::asio::io_service::run, &ioService_)
+            );
+        }
+
     };
 
 
@@ -118,14 +133,27 @@ private:
 
     std::mutex m_;
 
+    /*
+     * Create an asio::io_service and a thread_group (through pool in essence)
+     */
+    boost::asio::io_service ioService_;
+    boost::thread_group threadpool_;
+    /*
+     * This will start the ioService processing loop. All tasks
+     * assigned with ioService.post() will start executing.
+     */
+    boost::asio::io_service::work work_;
+
+
     /**
      * @brief bind_f экземпляр функции, которая будет вызываться в отдельном потоке
      */
     function_t bind_f;
 
-    bool add_new_searching_th(std::string str);
+    void add_new_searching_th(std::string str);
 
 
+    void myTask(std::string str);
 };
 
 } // namespace business

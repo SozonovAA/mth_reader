@@ -46,39 +46,47 @@ std::vector<types::SearchingResult> MthReader::searching_proc(std::ifstream & fs
     std::string str;
     do{
         str = read_file_chars(fs, reading_ch_n_);
-        if(m_.try_lock() and str.size()){
+        if(str.size()){
             add_new_searching_th(str);
-            m_.unlock();
         }
     }while(str.size());
 
-    while(! current_th_numb_) {
+    while(current_th_numb_) {
 
     }
 
+    ioService_.stop();
+    /*
+     * Will wait till all the threads in the thread pool are finished with
+     * their assigned tasks and 'join' them. Just assume the threads inside
+     * the threadpool will be destroyed by this method.
+     */
+    threadpool_.join_all();
     return all_res_;
+}
+
+void MthReader::myTask(std::string str) {
+
+    auto res {bind_f(str, key_)};
+    {
+        std::lock_guard<std::mutex> lg(m_);
+        ++serching_index_;
+        all_res_.resize(serching_index_);
+        all_res_.at(serching_index_-1) = std::move(res);
+    }
+    --current_th_numb_;
+    return;
+
 }
 
 bool MthReader::add_new_searching_th(std::string str)
 {
-    if(current_th_numb_ < max_th_number_){
 
-        ++serching_index_;
-        all_res_.resize(serching_index_);
-
-        //todo: необходимо разобраться как правильно контролировать количество потоков
-        std::future<void> as = { std::async(std::launch::async,[this, str](){
-            ++current_th_numb_;
-            all_res_.at(serching_index_-1) = (bind_f(str, key_));
-            --current_th_numb_;
-        })};
-        dpAsync_.emplace_back(std::move(as));
-        m_.unlock();
-        return true;
-    } else {
-        m_.lock();
-        return false;
-    }
+    ++current_th_numb_;
+    auto clb = [this, str]() -> void{
+        myTask(str);
+    };
+    ioService_.post(clb);
 
 }
 

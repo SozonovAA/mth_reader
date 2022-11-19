@@ -20,7 +20,7 @@ if(USE_BOOST_LIB)
     add_definitions(-DBOOST_PYTHON_STATIC_LIB)
     set(Boost_USE_MULTITHREADED ON)
 
-    find_package( Boost 1.74 COMPONENTS program_options REQUIRED )
+    find_package( Boost 1.74 COMPONENTS program_options thread timer chrono REQUIRED )
     message(STATUS "Boost version: ${Boost_VERSION}")
     if(Boost_FOUND)
         list(APPEND EXTRA_INCLUDE_DIRS
@@ -48,6 +48,7 @@ source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}" FILES ${main_source})
 list(APPEND     src_sources
          src/include/fileReader.h
          src/include/search.h
+         src/sources/search.cpp
          src/include/mthreader.h
          src/sources/mthreader.cpp
     )

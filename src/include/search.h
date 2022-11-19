@@ -5,6 +5,8 @@
 #include <regex>
 #include <iostream>
 
+#include <mutex>
+
 namespace utils {
 namespace types {
 using KeysNumber_t = std::uint64_t;
@@ -24,25 +26,8 @@ using SearchRet_t = std::pair<KeysNumber_t, KeysFinded_t>;
  * @param delim разделитель
  * @param out вектор строк, полученных после сплита
  */
-static std::vector<std::string> string_spliting(const std::string & str, const char delim)
-{
-    std::vector<std::string> out;
+std::vector<std::string> string_spliting(const std::string & str, const char delim);
 
-//    out.reserve(str.size());
-    if(*str.begin() == '\n') {
-        out.push_back({});
-    }
-    size_t start;
-    size_t end = 0;
-
-    while ((start = str.find_first_not_of(delim, end)) != std::string::npos)
-    {
-        end = str.find(delim, start);
-        out.push_back(str.substr(start, end - start));
-    }
-//    out.shrink_to_fit();
-    return out;
-}
 
 
 /**
@@ -55,14 +40,16 @@ static std::vector<std::string> string_spliting(const std::string & str, const c
 static const std::string key_preparing(const std::string_view & key,
                                      const std::string & any_from = "?",
                                      const std::string & any_to = "."){
-
+    std::mutex m;
+    std::lock_guard<std::mutex> lg(m);
     const auto r = std::regex(std::string{"(["+any_from+"])"});
     return std::string{ '(' + regex_replace(key.data(), r, any_to) + ')' };
 }
 
 
 static types::SearchRet_t key_searching(const std::string & string, const std::string & key){
-
+    std::mutex m;
+    std::lock_guard<std::mutex> lg(m);
     types::KeysFinded_t ret;
     const std::regex base_regex(key_preparing(key));
     const std::vector<std::smatch> matches{
