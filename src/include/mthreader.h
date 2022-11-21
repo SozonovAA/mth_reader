@@ -98,14 +98,15 @@ public:
         work_(ioService_)
     {
         if(auto key_size = key.size(); key_size > reading_ch_n) {
-            reading_ch_n_ = key_size * 3;
-            max_th_number_ = (max_th_number / 3);
+            reading_ch_n_ = key_size * 50;
+            max_th_number_ = (max_th_number * reading_ch_n) / reading_ch_n_;
         }
         for(auto i = 0; i < max_th_number ; ++i){
             threadpool_.create_thread(
                 boost::bind(&boost::asio::io_service::run, &ioService_)
             );
         }
+
     };
 
 

@@ -12,6 +12,7 @@ types::SearchingResult prepare_key_search(const std::string & str, std::string_v
     types::SearchingResult ret;
 
     //todo: брать последнюю строку, если она не нулевая и прибавлять к следующему
+    // больште ключи ломают логику
     std::vector<std::string> after_spliting{utils::string_spliting(str, '\n')};
 
     if(not (ret.is_last_char_n = (str.back() == '\n') )) {
