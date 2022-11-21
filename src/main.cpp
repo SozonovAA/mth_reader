@@ -5,77 +5,27 @@
 
 #endif
 
-#include <boost/asio/io_service.hpp>
-#include <boost/bind.hpp>
-#include <boost/thread/thread.hpp>
-
+#include <thread>
 #include <chrono>
-
-
-void myTask(const std::string & s, std::size_t time, std::uint16_t loop_c) {
-
-    for(int i = 0; i < loop_c; i++){
-        boost::this_thread::sleep_for(boost::chrono::milliseconds(time));
-        std::cout << s << std::endl;
-    }
-    boost::this_thread::yield();
-    return;
-}
+#include "../src/include/mthreader.h"
+#include "../src/include/fileReader.h"
 
 int main(){
-    /*
-     * Create an asio::io_service and a thread_group (through pool in essence)
-     */
-    boost::asio::io_service ioService;
-    boost::thread_group threadpool;
+    const std::string file_name = "data/third.in";
+    auto f_size = std::filesystem::file_size(file_name);
+    auto fs {open_file(file_name)};
+    auto n_reading_char = 0;
+    auto MAX_THREAD_N = std::thread::hardware_concurrency();
+    if(f_size > (500000 * MAX_THREAD_N) ) {
+        n_reading_char = 500000;
+    } else {
+        n_reading_char = f_size / MAX_THREAD_N;
+    }
 
-    /*
-     * This will start the ioService processing loop. All tasks
-     * assigned with ioService.post() will start executing.
-     */
-    boost::asio::io_service::work work(ioService);
+    business::MthReader mth("?ad", MAX_THREAD_N, n_reading_char);
+    mth.bind_finction(business::prepare_key_search);
 
-    /*
-     * This will assign tasks to the thread pool.
-     * More about boost::bind: "http://www.boost.org/doc/libs/1_54_0/libs/bind/bind.html#with_functions"
-     */
-    ioService.post(boost::bind(myTask, "1", 500, 5));
-    ioService.post(boost::bind(myTask, "2", 1000, 5));
-    ioService.post(boost::bind(myTask, "3", 100, 3));
-    ioService.post(boost::bind(myTask, "4", 1000, 10));
-//    ioService.poll();
-
-    /*
-     * This will add 2 threads to the thread pool. (You could just put it in a for loop)
-     */
-    threadpool.create_thread(
-        boost::bind(&boost::asio::io_service::run, &ioService)
-    );
-    threadpool.create_thread(
-        boost::bind(&boost::asio::io_service::run, &ioService)
-    );
-    threadpool.create_thread(
-        boost::bind(&boost::asio::io_service::run, &ioService)
-    );
-    threadpool.create_thread(
-        boost::bind(&boost::asio::io_service::run, &ioService)
-    );
-
-    ioService.post(boost::bind(myTask, "5", 1000, 4));
-
-
-
-        /*
-         * This will stop the ioService processing loop. Any tasks
-         * you add behind this point will not execute.
-        */
-    ioService.stop();
-    /*
-     * Will wait till all the threads in the thread pool are finished with
-     * their assigned tasks and 'join' them. Just assume the threads inside
-     * the threadpool will be destroyed by this method.
-     */
-    threadpool.join_all();
-
+    auto ret = mth.searching_proc(fs);
+    business::print(ret);
 
 }

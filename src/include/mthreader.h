@@ -3,6 +3,7 @@
 #include <future>
 #include <vector>
 #include <mutex>
+#include <atomic>
 
 #include <boost/asio/io_service.hpp>
 #include <boost/bind.hpp>
@@ -40,12 +41,12 @@ struct SearchingResult {
 
 } // namespace types
 
-//todo: реализовать и протестировать статическую функцию, которая будет читать строку и парсить её
-types::SearchingResult search(std::string str, std::string_view key);
+types::SearchingResult search(const std::string &str, std::string_view key);
+types::SearchingResult prepare_key_search(const std::string &str, std::string_view key);
 
 //todo: реализовать и протестировать статическую функцию,
 //      который будет по вектору из ретерн велью формировать корректный тип для вывода
-static void print(const std::vector<types::SearchingResult> res, std::ostream & info = std::cout) {
+static std::uint64_t print(const std::vector<types::SearchingResult> res, std::ostream & info = std::cout) {
     std::int64_t row = 0;
     std::uint64_t numb = 0;
 
@@ -53,24 +54,24 @@ static void print(const std::vector<types::SearchingResult> res, std::ostream & 
         numb+= it.numb_;
     });
     info << numb << std::endl;
-//    std::uint16_t add_to_first_row = 0;
+    std::uint16_t add_to_first_row = 0;
 
-//    for(auto & singl_res : res){
-//        for(const auto & it : singl_res.result_){
-//            ++row;
-//            for(const auto & itt : it){
-//                info << row << " " << add_to_first_row + itt.first << " " << itt.second << std::endl;
-//                }
-//            add_to_first_row = 0;
-//            }
+    for(auto & singl_res : res){
+        for(const auto & it : singl_res.result_){
+            ++row;
+            for(const auto & itt : it){
+                info << row << " " << add_to_first_row + itt.first << " " << itt.second << std::endl;
+                }
+            add_to_first_row = 0;
+            }
 
-//        if(!singl_res.is_last_char_n) {
-//            --row;
-//        }
-//        add_to_first_row = singl_res.last_row_size;
+        if(!singl_res.is_last_char_n) {
+            --row;
+        }
+        add_to_first_row = singl_res.last_row_size;
 
-//        }
-
+        }
+    return numb;
 }
 
 //todo: возможно он просто запускатор и следитель за количеством потоков
@@ -85,10 +86,10 @@ public:
 
     MthReader(std::string key, std::uint16_t max_th_number, std::uint64_t reading_ch_n) :
         dpAsync_{},
-        key_{key},
+        key_{utils::key_preparing(key)},
         max_th_number_{max_th_number},
         reading_ch_n_{reading_ch_n},
-        current_th_numb_{},
+        current_th_numb_{0},
         serching_index_{},
         all_res_{},
         m_{},
@@ -96,12 +97,15 @@ public:
         threadpool_{},
         work_(ioService_)
     {
+        if(auto key_size = key.size(); key_size > reading_ch_n) {
+            reading_ch_n_ = key_size * 3;
+            max_th_number_ = (max_th_number / 3);
+        }
         for(auto i = 0; i < max_th_number ; ++i){
             threadpool_.create_thread(
                 boost::bind(&boost::asio::io_service::run, &ioService_)
             );
         }
-
     };
 
 
@@ -120,11 +124,11 @@ private:
      */
     const std::string key_;
 
-    const std::uint16_t max_th_number_;
+    std::uint16_t max_th_number_;
 
-    const std::uint64_t reading_ch_n_;
+    std::uint64_t reading_ch_n_;
 
-    std::uint16_t current_th_numb_;
+    std::atomic<std::uint16_t> current_th_numb_;
 
     std::uint64_t serching_index_;
 
@@ -153,7 +157,7 @@ private:
     void add_new_searching_th(std::string str);
 
 
-    void myTask(std::string str);
+    void myTask(const std::string &str);
 };
 
 } // namespace business

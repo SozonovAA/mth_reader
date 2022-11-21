@@ -4,11 +4,14 @@
 
 namespace business {
 
-types::SearchingResult search(std::string str, std::string_view key)
+
+
+types::SearchingResult prepare_key_search(const std::string & str, std::string_view key)
 {
 
     types::SearchingResult ret;
 
+    //todo: брать последнюю строку, если она не нулевая и прибавлять к следующему
     std::vector<std::string> after_spliting{utils::string_spliting(str, '\n')};
 
     if(not (ret.is_last_char_n = (str.back() == '\n') )) {
@@ -19,7 +22,10 @@ types::SearchingResult search(std::string str, std::string_view key)
     for(const auto & str: after_spliting) {
         types::SearchingResult::all_data_in_row_t adr;
         adr.reserve(strings_number);
-        auto row_res = utils::key_searching(str, utils::key_preparing(std::string{key}));
+
+        auto row_res = utils::peapare_key_searching(str.begin(),
+                                                    str.end(),
+                                                    key.data());
         ret.numb_ += row_res.first;
 
         for(const auto & t : row_res.second) {
@@ -33,6 +39,11 @@ types::SearchingResult search(std::string str, std::string_view key)
 
     return ret;
 
+}
+
+types::SearchingResult search(const std::string & str, std::string_view key)
+{
+    return prepare_key_search(str, utils::key_preparing(std::string{key}));
 }
 
 
@@ -51,7 +62,7 @@ std::vector<types::SearchingResult> MthReader::searching_proc(std::ifstream & fs
         }
     }while(str.size());
 
-    while(current_th_numb_) {
+    while(current_th_numb_.load()) {
 
     }
 
@@ -65,23 +76,23 @@ std::vector<types::SearchingResult> MthReader::searching_proc(std::ifstream & fs
     return all_res_;
 }
 
-void MthReader::myTask(std::string str) {
+void MthReader::myTask(const std::string & str) {
 
     auto res {bind_f(str, key_)};
     {
         std::lock_guard<std::mutex> lg(m_);
+
         ++serching_index_;
         all_res_.resize(serching_index_);
         all_res_.at(serching_index_-1) = std::move(res);
     }
     --current_th_numb_;
-    return;
 
+    return;
 }
 
-bool MthReader::add_new_searching_th(std::string str)
+void MthReader::add_new_searching_th(std::string str)
 {
-
     ++current_th_numb_;
     auto clb = [this, str]() -> void{
         myTask(str);

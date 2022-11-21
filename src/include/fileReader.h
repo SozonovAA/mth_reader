@@ -15,7 +15,6 @@ static std::ifstream open_file( const std::filesystem::path& filepath, std::ostr
 #ifdef DEBUG_INFO
       info << "File: " + filepath.string() + " is valid." << std::endl;
 #endif
-
       return std::ifstream(filepath, std::ios::in | std::ios::binary );
 }
 
